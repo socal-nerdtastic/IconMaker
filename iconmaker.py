@@ -42,7 +42,11 @@ def main():
     root = tk.Tk()
     apply_icon(root)
     root.geometry('200x200')
+    
     # YOUR CODE HERE!!
+    lbl = tk.Label(root, text="Icon test program")
+    lbl.pack()
+    
     root.mainloop()
 
 icondata = '''
