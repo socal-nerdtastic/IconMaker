@@ -90,9 +90,12 @@ class GUI(tk.Frame):
                 disp_img = img.resize((200, 200))
                 self.pi = ImageTk.PhotoImage(disp_img)
 
-                save_img = img.resize((64, 64))
+                if self.resize.get():
+                    size = self.size.get()
+                    img = img.resize((size, size)) # assume a square
                 f = io.BytesIO()
-                save_img.save(f, format='GIF')
+                img.save(f, format='GIF')
+                img.show()
                 b64_img = base64.encodestring(f.getvalue())
             else:
                 self.pi = tk.PhotoImage(file=fn)
