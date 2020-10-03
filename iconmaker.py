@@ -76,6 +76,8 @@ class GUI(tk.Frame):
         lbl.pack(side=tk.LEFT)
         btn = ttk.Button(self, text='Recalculate', command=self.calculate)
         btn.grid()
+        btn = ttk.Button(self, text='Copy data out', command=self.copy_data)
+        btn.grid()
 
         self.disp_lbl = tk.Label(self, text='image')
         self.disp_lbl.grid()
@@ -83,6 +85,12 @@ class GUI(tk.Frame):
         self.rowconfigure(rows-1, weight=1)
         self.st = ScrolledText(self, width=80)
         self.st.grid(row=1, column=1, rowspan=rows)
+
+    def copy_data(self):
+        data = self.st.get('0.0', tk.END)
+        self.clipboard_clear()
+        self.clipboard_append(data)
+        self.warn_lbl.config(text="Data copied.")
 
     def browse(self):
         self.path = askopenfilename(filetypes=FILETYPES)
