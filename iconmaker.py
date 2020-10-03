@@ -12,7 +12,7 @@ import base64
 import io
 import tkinter as tk
 from tkinter.scrolledtext import ScrolledText
-from tkinter.filedialog import askopenfilename
+from tkinter import filedialog
 from tkinter import ttk
 
 PIL = False
@@ -23,6 +23,7 @@ try:
     PIL = True
 except ImportError:
     pass
+###
 
 FILETYPES = (
     ("Image files",
@@ -83,6 +84,8 @@ class GUI(tk.Frame):
         btn.grid()
         btn = ttk.Button(self, text='Copy data out', command=self.copy_data)
         btn.grid()
+        btn = ttk.Button(self, text='Save data file', command=self.save_data)
+        btn.grid()
 
         self.disp_lbl = tk.Label(self, text='image')
         self.disp_lbl.grid()
@@ -91,6 +94,14 @@ class GUI(tk.Frame):
         self.st = ScrolledText(self, width=80)
         self.st.grid(row=1, column=1, rowspan=rows)
 
+    def save_data(self):
+        fn = filedialog.asksaveasfilename(filetypes=(("Python file", "*.py"),))
+        if not fn: return # user cancelled
+        data = self.st.get('0.0', tk.END)
+        with open(fn, 'w') as f:
+            f.write(data)
+        self.warn_lbl.config(text="Data saved.")
+
     def copy_data(self):
         data = self.st.get('0.0', tk.END)
         self.clipboard_clear()
@@ -98,7 +109,7 @@ class GUI(tk.Frame):
         self.warn_lbl.config(text="Data copied.")
 
     def browse(self):
-        self.path = askopenfilename(filetypes=FILETYPES)
+        self.path = filedialog.askopenfilename(filetypes=FILETYPES)
         if not self.path: return # user cancel
         _, name = os.path.split(self.path)
         self.fn.set(name)
@@ -127,9 +138,7 @@ class GUI(tk.Frame):
                     b64_img = base64.encodestring(f.read())
 
             self.disp_lbl.config(image=self.pi)
-
             self.st.delete('0.0', tk.END)
-
             self.st.insert(tk.END, TEMPLATE.format(data=b64_img.decode()))
             self.warn_lbl.config(text="Done. Data is {} lines ({:,} bytes).".format(b64_img.count(b'\n'), len(b64_img)))
 
