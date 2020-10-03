@@ -49,6 +49,8 @@ if __name__ == '__main__':
 class GUI(tk.Frame):
     def __init__(self, master=None, **kwargs):
         super().__init__(master, **kwargs)
+        self.path = None
+
         self.warn_lbl = tk.Label(self, fg='red')
         self.warn_lbl.grid(columnspan=2)
         if not PIL:
@@ -72,6 +74,9 @@ class GUI(tk.Frame):
         size.pack(side=tk.LEFT)
         lbl = tk.Label(subframe, text="pixels")
         lbl.pack(side=tk.LEFT)
+        btn = ttk.Button(self, text='Recalculate', command=self.calculate)
+        btn.grid()
+
         self.disp_lbl = tk.Label(self, text='image')
         self.disp_lbl.grid()
         cols, rows = self.grid_size()
@@ -80,32 +85,40 @@ class GUI(tk.Frame):
         self.st.grid(row=1, column=1, rowspan=rows)
 
     def browse(self):
-        fn = askopenfilename(filetypes=FILETYPES)
-        if not fn: return # user cancel
-        _, name = os.path.split(fn)
+        self.path = askopenfilename(filetypes=FILETYPES)
+        if not self.path: return # user cancel
+        _, name = os.path.split(self.path)
         self.fn.set(name)
+        self.calculate()
+
+    def calculate(self):
+        if not self.path:
+            self.warn_lbl.config(text="No file loaded")
+            return
+        self.warn_lbl.config(text="")
         try:
             if PIL:
-                img = Image.open(fn)
-                disp_img = img.resize((200, 200))
-                self.pi = ImageTk.PhotoImage(disp_img)
+                img = Image.open(self.path)
 
                 if self.resize.get():
                     size = self.size.get()
                     img = img.resize((size, size)) # assume a square
+
+                self.pi = ImageTk.PhotoImage(img)
                 f = io.BytesIO()
                 img.save(f, format='GIF')
-                img.show()
                 b64_img = base64.encodestring(f.getvalue())
             else:
-                self.pi = tk.PhotoImage(file=fn)
-                with open(fn, 'rb') as f:
+                self.pi = tk.PhotoImage(file=self.path)
+                with open(self.path, 'rb') as f:
                     b64_img = base64.encodestring(f.read())
 
             self.disp_lbl.config(image=self.pi)
 
             self.st.delete('0.0', tk.END)
+
             self.st.insert(tk.END, TEMPLATE.format(data=b64_img.decode()))
+            self.warn_lbl.config(text="Done. Data is {} lines ({:,} bytes).".format(b64_img.count(b'\n'), len(b64_img)))
 
         except Exception as e:
             self.warn_lbl.config(text=e)
