@@ -31,10 +31,15 @@ FILETYPES = (
     ("All files","*.*"))
 
 TEMPLATE = """\
+import tkinter as tk
+
+def apply_icon(w):
+    icon = tk.PhotoImage(data=icondata)
+    w.tk.call('wm', 'iconphoto', w._w, icon)
+
 def main():
     root = tk.Tk()
-    icon = tk.PhotoImage(data=icondata)
-    root.tk.call('wm', 'iconphoto', root._w, icon)
+    apply_icon(root)
     root.geometry('200x200')
     # YOUR CODE HERE!!
     root.mainloop()
@@ -132,10 +137,13 @@ class GUI(tk.Frame):
             self.warn_lbl.config(text=e)
             raise
 
+def apply_icon(w):
+    icon = tk.PhotoImage(data=icondata)
+    w.tk.call('wm', 'iconphoto', w._w, icon)
+
 def main():
     root = tk.Tk()
-    icon = tk.PhotoImage(data=icondata)
-    root.tk.call('wm', 'iconphoto', root._w, icon)
+    apply_icon(root)
     window = GUI(root)
     window.pack()
     root.mainloop()
