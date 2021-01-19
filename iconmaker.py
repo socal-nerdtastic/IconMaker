@@ -60,6 +60,29 @@ if __name__ == '__main__':
     main()
 """
 
+def pip_install_popup():
+    INSTALL = "pillow"
+    from subprocess import Popen, PIPE
+    import sys
+    import threading
+    from tkinter.scrolledtext import ScrolledText
+
+    def pipe_reader(pipe, term=False):
+        for line in iter(pipe.readline, b''):
+            st.insert(tk.END, line)
+            st.see(tk.END)
+        if term:
+            tk.Label(popup, fg='red', text="DONE. Restart required.", font=('bold',14)).pack()
+            ttk.Button(popup, text="Exit program", command=sys.exit).pack()
+
+    popup = tk.Toplevel()
+    tk.Label(popup, text="Installing: "+INSTALL, font=('bold',14)).pack()
+    st= ScrolledText(popup, width=60, height=12)
+    st.pack()
+    sub_proc = Popen([sys.executable, '-m','pip', 'install', INSTALL], stdout=PIPE, stderr=PIPE)
+    threading.Thread(target=pipe_reader, args=[sub_proc.stdout]).start()
+    threading.Thread(target=pipe_reader, args=[sub_proc.stderr, True]).start()
+
 class GUI(tk.Frame):
     def __init__(self, master=None, **kwargs):
         super().__init__(master, **kwargs)
@@ -68,7 +91,9 @@ class GUI(tk.Frame):
         self.warn_lbl = tk.Label(self, fg='red')
         self.warn_lbl.grid(columnspan=2)
         if not PIL:
-            self.warn_lbl.config(text="PIL not installed, only small .gif files will work")
+            self.warn_lbl.config(text="Pillow (PIL) not installed, only small .gif files will work")
+            btn = ttk.Button(self, text="Install Pillow", command=pip_install_popup)
+            btn.grid()
         lbl = tk.Label(self, text='Choose an image file')
         lbl.grid()
         btn = ttk.Button(self, text="browse", command=self.browse)
