@@ -31,12 +31,16 @@ FILETYPES = (
         ),
     ("All files","*.*"))
 
-TEMPLATE = """\
+TEMPLATE = r"""#!/usr/bin/env python3
+
 import tkinter as tk
 
 def apply_icon(w):
-    icon = tk.PhotoImage(data=icondata)
-    w.tk.call('wm', 'iconphoto', w._w, icon)
+    try:
+        icon = tk.PhotoImage(data=icondata)
+        w.iconphoto(True, icon)
+    except Exception as e:
+        print("Could not load icon due to:\n  ",e)
 
 def main():
     root = tk.Tk()
@@ -151,8 +155,11 @@ class GUI(tk.Frame):
             raise
 
 def apply_icon(w):
-    icon = tk.PhotoImage(data=icondata)
-    w.iconphoto(True, icon)
+    try:
+        icon = tk.PhotoImage(data=icondata)
+        w.iconphoto(True, icon)
+    except Exception as e:
+        print("Could not load icon due to:\n  ",e)
 
 def main():
     root = tk.Tk()
