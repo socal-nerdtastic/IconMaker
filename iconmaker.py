@@ -164,11 +164,11 @@ class GUI(tk.Frame):
                 self.pi = ImageTk.PhotoImage(img)
                 f = io.BytesIO()
                 img.save(f, format='GIF')
-                b64_img = base64.encodestring(f.getvalue())
+                b64_img = base64.encodebytes(f.getvalue())
             else:
                 self.pi = tk.PhotoImage(file=self.path)
                 with open(self.path, 'rb') as f:
-                    b64_img = base64.encodestring(f.read())
+                    b64_img = base64.encodebytes(f.read())
 
             self.disp_lbl.config(image=self.pi)
             self.st.delete('0.0', tk.END)
